@@ -30,7 +30,7 @@ def auth_gspread():
 def google_search_simple_query(countryCode, query):
     url = 'https://www.googleapis.com/customsearch/v1'
     params = {
-        'key': 'AIzaSyC0dQ0ulTS3sAgQ5jHn965TP-GjUwA3G5g',
+        'key': st.secrets['google_search_api_key'],
         'cx': 'd34a74997a27a4205',
         'cr' : countryCode,
         'q': query,
