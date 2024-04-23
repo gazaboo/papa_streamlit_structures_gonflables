@@ -13,9 +13,12 @@ def create_queries(user_query):
     with open('./cities.json') as f:
         cities_data = json.load(f)
 
+    with open('./countries.json') as f:
+        countries_data = json.load(f)
+
     for country_code, cities in cities_data.items():
         for city in cities:
-            queries.append((country_code, user_query + ' ' + city))
+            queries.append((user_query, country_code, countries_data[country_code], city))
     return queries
 
 # Function to authenticate and create a client.
@@ -41,22 +44,29 @@ def google_search_simple_query(countryCode, query):
 def display_site_info(item):
     st.subheader(item.get('title'))
     if item.get('link') and item.get('link') in st.session_state.already_listed_url : 
-        st.warning('Deja dans la base de données') 
+        st.warning('Deja dans la base de données')
+
+    if item.get('link') and item.get('link') in st.session_state.black_list : 
+        st.error('Dans la liste noire, ne sera pas ajoutée dans la base de données')
+
     st.write(item.get('snippet'))
     st.write(item.get('link'))
     st.divider()
 
 
-def add_to_spreadsheet(item):
+def add_to_spreadsheet(item, countryName, city, query):
     if item.get('link') is not None:
-        if item.get('link') and item.get('link') not in st.session_state.already_listed_url : 
+        if item.get('link') and item.get('link') not in st.session_state.already_listed_url and  item.get('link') not in st.session_state.black_list: 
             try :
                 email = get_mail_from_url( item.get('link') )
                 st.session_state.sheet.append_row([
                     item.get('title'),
                     item.get('snippet'),
                     item.get('link'), 
-                    email
+                    email, 
+                    countryName, 
+                    city, 
+                    query
                 ])
             except Exception as e:
                 print(e)
@@ -70,6 +80,8 @@ def main():
     st.session_state['sheet'] = client.open("base_de_donnees").sheet1 
     st.session_state['data'] = st.session_state.sheet.get_all_records()    
     st.session_state['already_listed_url'] = set([item['Link'] for item in st.session_state.data])
+    black_list = client.open("base_de_donnees").get_worksheet(1).get_all_values()
+    st.session_state['black_list'] = set([ elt[0] for elt in black_list[1:]])
 
     with st.sidebar:
         st.image('./logo.png', width=200)
@@ -81,10 +93,12 @@ def main():
     if st.button("Search") and user_query:
         compound_queries = create_queries(user_query)
         for compound_query in compound_queries:
-            st.subheader(" - ".join(compound_query))
-            results = google_search_simple_query(*compound_query).get("items", [])
-            for item in results:
-                display_site_info(item)
-                add_to_spreadsheet(item)
+            query, countryCode, countryName,city = compound_query
+            st.subheader(" - ".join([query,  city, countryName]))
+            with st.expander("Resultats"):
+                results = google_search_simple_query(countryCode=countryCode, query=query + " " + city).get("items", [])
+                for item in results:
+                    display_site_info(item)
+                    add_to_spreadsheet(item, countryName, city, query)
 
 main()

@@ -1,4 +1,8 @@
 {
-    "countryFR" : ["", "Perpignan"],
-    "countryBE" : ["Bruxelles"]
-}
+    "countryFR": [
+      "Paris"
+      ],
+    "countryBE": [
+      "Bruxelles"
+    ]
+  }
