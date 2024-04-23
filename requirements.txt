@@ -41,3 +41,6 @@ tzdata==2024.1
 urllib3==2.2.1
 watchdog==4.0.0
 gspread
+google-api-python-client 
+google-auth-httplib2 
+google-auth-oauthlib
