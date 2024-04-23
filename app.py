@@ -79,7 +79,7 @@ def main():
     client = auth_gspread()
     st.session_state['sheet'] = client.open("base_de_donnees").sheet1 
     st.session_state['data'] = st.session_state.sheet.get_all_records()    
-    st.session_state['already_listed_url'] = set([item['Link'] for item in st.session_state.data])
+    st.session_state['already_listed_url'] = set([item['URL'] for item in st.session_state.data])
     black_list = client.open("base_de_donnees").get_worksheet(1).get_all_values()
     st.session_state['black_list'] = set([ elt[0] for elt in black_list[1:]])
 
