@@ -9,7 +9,8 @@ import pandas as pd
 # Function to authenticate and create a client.
 def auth_gspread():
     scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("./credentials.json", scope)
+    google_service_account_info = st.secrets['google_service_account']
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(google_service_account_info, scope)
     client = gspread.authorize(creds)
     return client
 
