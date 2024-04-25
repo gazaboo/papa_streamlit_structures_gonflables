@@ -7,7 +7,12 @@ from bs4 import BeautifulSoup
 def extract_emails_from_html(html_content):
     email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     emails = re.findall(email_pattern, html_content)
-    wrong_emails = ['prestashop']
+    wrong_emails = [
+        'prestashop',
+        '.png', '.jpg',
+        'votre@email.com',
+        'jean.dupont@gmail.com'
+    ]
     filtered_emails = [email for email in emails if not any(
         substring in email for substring in wrong_emails)]
     return filtered_emails
@@ -38,6 +43,7 @@ def get_mail_from_url(url):
             links_to_visit_next = reorder_links(links_to_visit_next)
             if len(links_to_visit_next) > 0:
                 for link in links_to_visit_next:
+                    print('testing --> ', link)
                     html = download_webpage(link)
                     email = extract_emails_from_html(html)
                     if email and len(email) > 0:
@@ -80,4 +86,6 @@ def extract_all_links(html):
 
 
 def reorder_links(links):
-    return list(sorted(links, key=lambda x: "contact" not in x.lower()))
+    links = list(sorted(links, key=len))
+    links = list(sorted(links, key=lambda x: "contact" not in x.lower()))
+    return links[:20]

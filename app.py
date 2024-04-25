@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 import streamlit as st
 import requests
 import gspread
@@ -70,30 +71,18 @@ def google_search_simple_query(countryCode, query):
     return response.json()
 
 
-def display_site_info(item):
+def should_be_scraped(item_link):
     already_listed_urls, black_list = get_listed_urls()
-    st.subheader(item.get('title'))
-    if item.get('link') and item.get('link') in already_listed_urls:
-        st.warning('Deja dans la base de données')
-
-    if item.get('link') and item.get('link') in black_list:
-        st.error('Dans la liste noire, ne sera pas ajoutée dans la base de données')
-
-    st.write(item.get('snippet'))
-    st.write(item.get('link'))
-    st.divider()
+    netloc = urlparse(item_link).netloc
+    already_done = netloc in already_listed_urls or netloc in black_list
+    return not already_done
 
 
 def add_to_spreadsheet(item, countryName, city, query):
-    sheet = get_spreadsheet().sheet1
-    already_listed_urls, black_list = get_listed_urls()
+    sheet = get_spreadsheet_object()
     item_link = item.get('link')
 
-    if item_link is None:
-        print('No link for --> ', item)
-        return
-
-    if item_link not in already_listed_urls and item_link not in black_list:
+    if should_be_scraped(item_link):
         try:
             email = get_mail_from_url(item.get('link'))
             sheet.append_row([
@@ -111,20 +100,52 @@ def add_to_spreadsheet(item, countryName, city, query):
             print(e)
 
 
-@st.cache_resource(ttl=15)
-def get_spreadsheet():
+@st.cache_resource(ttl=30)
+def get_spreadsheet_data():
     client = auth_gspread()
-    return client.open("base_de_donnees")
+    return client.open("base_de_donnees").sheet1.get_all_records()
 
 
-@st.cache_resource(ttl=15)
+@st.cache_resource(ttl=30)
+def get_black_list():
+    client = auth_gspread()
+    return client.open("base_de_donnees").get_worksheet(1).get_all_values()
+
+
+@st.cache_resource(ttl=30)
+def get_spreadsheet_object():
+    client = auth_gspread()
+    return client.open("base_de_donnees").sheet1
+
+
+@st.cache_resource(ttl=30)
 def get_listed_urls():
-    sheet = get_spreadsheet().sheet1
-    data = sheet.get_all_records()
-    already_listed = set([item['URL'] for item in data])
-    black_list = sheet = get_spreadsheet().get_worksheet(1).get_all_values()
-    black_list = set([elt[0] for elt in black_list[1:]])
+    data = get_spreadsheet_data()
+    already_listed = set([urlparse(item['URL']).netloc for item in data])
+    black_list = get_black_list()
+    black_list = set([urlparse(elt[0]).netloc for elt in black_list[1:]])
     return already_listed, black_list
+
+
+def is_in_database(item):
+    already_listed_urls, _ = get_listed_urls()
+    return urlparse(item.get('link')).netloc in already_listed_urls
+
+
+def is_blacklisted(item):
+    _, black_list = get_listed_urls()
+    return urlparse(item.get('link')).netloc in black_list
+
+
+def display_site_info(item):
+    st.subheader(item.get('title'))
+    if is_in_database(item):
+        st.warning('Deja dans la base de données')
+    if is_blacklisted(item):
+        st.error('Dans la liste noire, ne sera pas ajoutée dans la base de données')
+    st.write(item.get('snippet'))
+    st.write(item.get('link'))
+    st.divider()
 
 
 def display_title_logo():
