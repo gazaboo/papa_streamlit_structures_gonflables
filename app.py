@@ -1,11 +1,4 @@
-from urllib.parse import urlparse
 import streamlit as st
-import requests
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import json
-import pandas as pd
-from processing_html import get_mail_from_url
 from google_custom_api import (
     choose_locations_to_search,
     is_in_database,
