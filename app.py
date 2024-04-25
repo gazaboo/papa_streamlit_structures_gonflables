@@ -5,7 +5,8 @@ from google_custom_api import (
     is_blacklisted,
     create_queries,
     google_search_simple_query,
-    add_to_spreadsheet
+    add_to_spreadsheet,
+    get_history_of_used_keywords
 )
 
 st.set_page_config(layout="wide")
@@ -22,15 +23,18 @@ def display_site_info(item):
     st.divider()
 
 
-def display_title_logo():
+def display_sidebar():
     with st.sidebar:
-        st.image('./logo.png', width=200)
-    st.title("Recherches entreprises lo cations de structures gonflables")
+        st.image('./logo.png', width=150)
+        st.subheader('Recherches passées')
+        for keyword in get_history_of_used_keywords():
+            st.text(keyword)
+
+
+def display_main_panel():
+    st.title("Recherches entreprises locations de structures gonflables")
     st.subheader("Création de la base de données")
-
-
-def main():
-    display_title_logo()
+    display_sidebar()
     user_query = st.text_input("Recherche google")
     locations = choose_locations_to_search()
     if st.button("Search") and user_query:
@@ -52,4 +56,4 @@ def main():
                     index += 1
 
 
-main()
+display_main_panel()

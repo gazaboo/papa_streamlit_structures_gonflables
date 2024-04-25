@@ -133,3 +133,9 @@ def is_in_database(item):
 def is_blacklisted(item):
     _, black_list = get_listed_urls()
     return urlparse(item.get('link')).netloc in black_list
+
+
+def get_history_of_used_keywords():
+    data = get_spreadsheet_data()
+    keywords = set([item['Mot clés'] for item in data])
+    return keywords
