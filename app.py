@@ -9,6 +9,10 @@ from google_custom_api import (
     get_history_of_used_keywords
 )
 
+if 'current_database' not in st.session_state:
+    st.session_state.current_database = '1yozpUI5mdkpBSCiZoBnENzrVJEfHpisDg0a7ohqQEe4'
+
+
 st.set_page_config(layout="wide")
 
 
