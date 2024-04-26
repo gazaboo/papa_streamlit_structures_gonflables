@@ -1,22 +1,14 @@
 from urllib.parse import urlparse
 import streamlit as st
 import requests
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+# import gspread
+# from oauth2client.service_account import ServiceAccountCredentials
 import json
 import pandas as pd
+from meta_data_handler import get_metadata
 from processing_html import get_mail_from_url
 
-
-@st.cache_resource
-def auth_gspread():
-    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
-             "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-    google_service_account_info = st.secrets['google_service_account']
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        google_service_account_info, scope)
-    client = gspread.authorize(creds)
-    return client
+from authenticators import auth_gspread
 
 
 def choose_locations_to_search():
@@ -101,12 +93,16 @@ def add_to_spreadsheet(item, countryName, city, query):
 @st.cache_resource(ttl=30)
 def get_spreadsheet_data():
     client = auth_gspread()
-    return client.open("base_de_donnees").sheet1.get_all_records()
+    id = st.session_state.current_metadata['id']
+    return client.open_by_key(id).get_worksheet(0).get_all_records()
 
 
 @st.cache_resource(ttl=30)
 def get_black_list():
     client = auth_gspread()
+    # sheet = client.open_by_key(id)
+    _, current_metadata = get_metadata()
+
     return client.open("base_de_donnees").get_worksheet(1).get_all_values()
 
 

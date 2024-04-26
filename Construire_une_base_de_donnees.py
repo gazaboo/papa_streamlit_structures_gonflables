@@ -1,4 +1,6 @@
 import streamlit as st
+from meta_data_handler import change_current_metadata, get_metadata
+
 from google_search_api import (
     choose_locations_to_search,
     is_in_database,
@@ -9,8 +11,6 @@ from google_search_api import (
     get_history_of_used_keywords
 )
 
-from google_drive_api import get_files_infos_in_drive
-from meta_data_handler import change_current_metadata, get_metadata
 
 st.set_page_config(layout="wide")
 

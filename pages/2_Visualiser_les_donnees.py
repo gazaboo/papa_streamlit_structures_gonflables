@@ -61,7 +61,7 @@ def synchronize_with_remote():
     st.rerun()
 
 
-def main(all_meta_data, current_meta_data):
+def main():
     data, black_list, meta_data = get_data()
     st.title("Base de données")
     st.subheader(f"Nom : :orange{[meta_data['file_name']]}")
@@ -80,5 +80,4 @@ def main(all_meta_data, current_meta_data):
         st.dataframe(df_blacklist)
 
 
-all_meta_data, current_meta_data = get_metadata()
-main(all_meta_data, current_meta_data)
+main()

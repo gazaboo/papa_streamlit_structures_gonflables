@@ -1,25 +1,13 @@
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
 from datetime import datetime
 from streamlit_extras.switch_page_button import switch_page
-
 from google_search_api import auth_gspread
-
-
-def auth_drive():
-    scope = ['https://www.googleapis.com/auth/drive']
-    google_service_account_info = st.secrets['google_service_account']
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        google_service_account_info, scope)
-
-    service = build('drive', 'v3', credentials=creds)
-    return service
+from authenticators import auth_drive
+from googleapiclient.errors import HttpError
 
 
 def button_to_create_spread_sheet():
-    col1, col2, col3 = st.columns([3, 3, 2])
+    col1, col2, _ = st.columns([3, 3, 2])
     with col1:
         spread_sheet_name = st.text_input(
             label='Nouvelle recherche',
@@ -65,7 +53,7 @@ def button_to_create_spread_sheet():
                 }
                 st.session_state['meta_data_drive_files'][file_id] = new_metadata
                 st.session_state.current_metadata = new_metadata
-                switch_page('app')
+                switch_page('Construire une base de donnees')
 
             except HttpError as error:
                 st.error(f"An error occurred: {error}")
@@ -107,7 +95,7 @@ def get_files_infos_in_drive():
 
 def open_file(id):
     st.session_state.current_metadata = st.session_state.meta_data_drive_files[id]
-    switch_page('base de donnees')
+    switch_page('Visualiser les donnees')
 
 
 def delete_file(id):
