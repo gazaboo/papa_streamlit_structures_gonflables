@@ -10,17 +10,9 @@ from google_search_api import (
 )
 
 from google_drive_api import get_files_infos_in_drive
+from meta_data_handler import change_current_metadata, get_metadata
 
 st.set_page_config(layout="wide")
-
-if 'meta_data_drive_files' not in st.session_state:
-    get_files_infos_in_drive.clear()
-    get_files_infos_in_drive()
-
-if 'current_metadata' not in st.session_state:
-    st.session_state.current_metadata = st.session_state.meta_data_drive_files[
-        '1yozpUI5mdkpBSCiZoBnENzrVJEfHpisDg0a7ohqQEe4']
-    st.session_state.current_metadata['id'] = '1yozpUI5mdkpBSCiZoBnENzrVJEfHpisDg0a7ohqQEe4'
 
 
 def display_site_info(item):
@@ -35,38 +27,40 @@ def display_site_info(item):
 
 
 def display_sidebar():
+    all_meta_data, current_metadata = get_metadata()
     with st.sidebar:
-        st.image('./logo.png', width=150)
-        st.header('INFORMATIONS')
-        st.divider()
-        st.subheader('Dernière mise à jour')
-        st.write(st.session_state.current_metadata['last_fetched'])
-        st.divider()
-        st.subheader('Recherches passées')
+        st.header(':orange[INFORMATIONS]')
+        display_selection_bdd(all_meta_data)
+        st.subheader(':orange[Dernière mise à jour]')
+        st.write(current_metadata['last_fetched'])
+        st.subheader(':orange[Recherches passées]')
         for keyword in get_history_of_used_keywords():
             st.text(keyword)
-        st.divider()
-        st.subheader('Nbre total emails recensés')
-        st.text(st.session_state.current_metadata['nbre_emails'])
+        if 'nbre_emails' in current_metadata.keys():
+            st.subheader(':orange[Nbre total emails recensés]')
+            st.text(current_metadata['nbre_emails'])
 
 
-def display_selection_bdd():
-    options = st.session_state.meta_data_drive_files
-    selected_id = st.selectbox(
-        label='Choisir base de données',
-        options=options.keys(),
-        format_func=lambda id: options[id]['file_name']
+def display_selection_bdd(all_meta_data):
+    selected = st.selectbox(
+        label='Choisir une autre base de données',
+        index=None,
+        options=all_meta_data.keys(),
+        format_func=lambda id: all_meta_data[id]['file_name']
     )
-    return selected_id
+    if selected is not None and selected != st.session_state.current_metadata['id']:
+        change_current_metadata(selected)
+        st.rerun()
 
 
 def display_main_panel():
-    st.title("Recherches entreprises locations de structures gonflables")
-    st.subheader("Création de la base de données")
-    st.session_state.current_database = display_selection_bdd()
-    st.write(
-        st.session_state.meta_data_drive_files[st.session_state.current_database])
+    _, current_meta_data = get_metadata()
     display_sidebar()
+    st.title("Recherches entreprises locations de structures gonflables")
+
+    sheet_name = current_meta_data['file_name']
+    st.subheader(f"Création de la base de données : :orange[{sheet_name}]")
+
     user_query = st.text_input("Recherche google")
     locations = choose_locations_to_search()
     if st.button("Search") and user_query:

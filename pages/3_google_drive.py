@@ -7,8 +7,6 @@ from google_drive_api import (
     get_files_infos_in_drive
 )
 
-from streamlit_modal import Modal
-
 
 def main_panel_results(items):
 
@@ -21,6 +19,9 @@ def main_panel_results(items):
             last_modified = last_modified.replace(microsecond=0, tzinfo=None)
 
             st.write("Dernière mise à jour : ", last_modified)
+            st.link_button(
+                label='Ouvrir dans google drive',
+                url='https://docs.google.com/spreadsheets/d/' + item['id'])
         with col2:
             sub_col1, sub_col2 = st.columns([2, 3])
             with sub_col1:
@@ -28,7 +29,7 @@ def main_panel_results(items):
                     open_file(item['id'])
             with sub_col2:
                 asked_for_delete = st.toggle(
-                    label='Supprimer',
+                    label=':red[Supprimer]',
                     value=False,
                     key=f"open_delete_{item['id']}")
 

@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 from google_drive_api import get_files_infos_in_drive
+from meta_data_handler import get_metadata
 
 st.set_page_config(layout="wide")
 
@@ -28,23 +29,31 @@ def auth_gspread():
     return client
 
 
-@st.cache_data(ttl=30)
 def get_data():
     client = auth_gspread()
-    id = st.session_state.current_metadata['id']
-    data = client.open_by_key(id).sheet1.get_all_records()
-    black_list = client.open(
-        "base_de_donnees").get_worksheet(1).get_all_values()
+    _, current_metadata = get_metadata()
+    id = current_metadata['id']
+    sheet = client.open_by_key(id)
+    data = sheet.get_worksheet(0).get_all_records()
+    if len(sheet.worksheets()) > 1:
+        black_list = sheet.get_worksheet(1).get_all_values()
+    else:
+        black_list = []
     update_meta_data(id, data)
     return data, black_list, st.session_state['meta_data_drive_files'][id]
 
 
 def update_meta_data(id, data):
     elt = st.session_state['meta_data_drive_files'][id]
-    df = pd.DataFrame(data)
-    elt['last_fetched'] = datetime.now()
-    elt['mots_cles'] = df["Mots clés"].unique()
-    elt['nbre_emails'] = df["Email"].nunique()
+    if len(data) > 0:
+        df = pd.DataFrame(data)
+        elt['last_fetched'] = datetime.now()
+        elt['mots_cles'] = df["Mots clés"].unique()
+        elt['nbre_emails'] = df["Email"].nunique()
+    else:
+        elt['last_fetched'] = datetime.now()
+        elt['mots_cles'] = ""
+        elt['nbre_emails'] = 0
 
 
 def synchronize_with_remote():
@@ -52,12 +61,10 @@ def synchronize_with_remote():
     st.rerun()
 
 
-def main():
+def main(all_meta_data, current_meta_data):
     data, black_list, meta_data = get_data()
-
     st.title("Base de données")
     st.subheader(f"Nom : :orange{[meta_data['file_name']]}")
-    st.write(meta_data)
     with st.sidebar:
         st.image('./logo.png', width=200)
         st.write("Dernière modification : ", meta_data['last_modified'])
@@ -73,4 +80,5 @@ def main():
         st.dataframe(df_blacklist)
 
 
-main()
+all_meta_data, current_meta_data = get_metadata()
+main(all_meta_data, current_meta_data)

@@ -55,15 +55,18 @@ def button_to_create_spread_sheet():
                     'Titre', 'Description', 'URL', 'Email', 'Pays', 'Ville', 'Mots clés'
                 ])
 
-                st.session_state['meta_data_drive_files'][file_id] = {
+                new_metadata = {
                     'id': file_id,
                     'file_name': spread_sheet_name,
                     'last_fetched': datetime.now(),
+                    'last_modified': datetime.now(),
                     'mots_cles': {},
                     'nbre_emails': 0
                 }
+                st.session_state['meta_data_drive_files'][file_id] = new_metadata
+                st.session_state.current_metadata = new_metadata
+                switch_page('app')
 
-                st.success(f"New spreadsheet created with ID: {file_id}")
             except HttpError as error:
                 st.error(f"An error occurred: {error}")
                 file_id = None
@@ -75,7 +78,7 @@ def get_drive_service():
     return service
 
 
-@ st.cache_data(ttl=30)
+@st.cache_data(ttl=30)
 def get_files_infos_in_drive():
     service = get_drive_service()
     results = service.files().list(pageSize=1000,
