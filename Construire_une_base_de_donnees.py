@@ -3,6 +3,7 @@ from meta_data_handler import change_current_metadata, get_metadata
 
 from google_search_api import (
     choose_locations_to_search,
+    get_spreadsheet_object,
     is_in_database,
     is_blacklisted,
     create_queries,
@@ -50,20 +51,23 @@ def display_selection_bdd(all_meta_data):
     )
     if selected is not None and selected != st.session_state.current_metadata['id']:
         change_current_metadata(selected)
+        st.cache_data.clear()
         st.rerun()
 
 
 def display_main_panel():
     _, current_meta_data = get_metadata()
-    display_sidebar()
-    st.title("Recherches entreprises locations de structures gonflables")
 
+    display_sidebar()
+
+    st.title("Recherches entreprises locations de structures gonflables")
     sheet_name = current_meta_data['file_name']
     st.subheader(f"Création de la base de données : :orange[{sheet_name}]")
 
     user_query = st.text_input("Recherche google")
     locations = choose_locations_to_search()
     if st.button("Search") and user_query:
+        get_spreadsheet_object.clear()
         compound_queries = create_queries(user_query, locations)
         total_elements = len(compound_queries*10)
         progress_bar = st.progress(1/total_elements, text='Searching')
@@ -74,6 +78,7 @@ def display_main_panel():
             with st.expander("Resultats"):
                 results = google_search_simple_query(
                     countryCode=countryCode, query=query + " " + city).get("items", [])
+                st.write(results)
                 for item in results:
                     progress_bar.progress(
                         index/total_elements, text=f'Recherche : {index} / {total_elements} ({city} - {countryName})')

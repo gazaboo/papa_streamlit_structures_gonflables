@@ -41,6 +41,7 @@ def get_countries_data():
 def create_queries(user_query, locations):
     queries = []
     cities_data, countries_data = get_countries_data()
+
     for country_code, cities in cities_data.items():
         if countries_data[country_code] in locations:
             for city in cities:
@@ -58,6 +59,7 @@ def google_search_simple_query(countryCode, query):
         'q': query,
     }
     response = requests.get(url, params=params)
+    st.write(response.content)
     return response.json()
 
 
@@ -100,16 +102,19 @@ def get_spreadsheet_data():
 @st.cache_resource(ttl=30)
 def get_black_list():
     client = auth_gspread()
-    # sheet = client.open_by_key(id)
-    _, current_metadata = get_metadata()
-
-    return client.open("base_de_donnees").get_worksheet(1).get_all_values()
+    id = st.session_state.current_metadata['id']
+    sheet = client.open_by_key(id)
+    st.write(st.session_state.current_metadata)
+    if len(sheet.worksheets()) > 1:
+        return sheet.get_worksheet(1).get_all_values()
+    return "Aucune"
 
 
 @st.cache_resource(ttl=30)
 def get_spreadsheet_object():
     client = auth_gspread()
-    return client.open("base_de_donnees").sheet1
+    id = st.session_state.current_metadata['id']
+    return client.open_by_key(id).get_worksheet(0)
 
 
 @st.cache_resource(ttl=30)
