@@ -46,3 +46,5 @@ urllib3==2.2.1
 watchdog==4.0.0
 gspread==6.1.0
 beautifulsoup4==4.12.3
+streamlit-modal==0.1.2 
+streamlit-extras==0.4.2

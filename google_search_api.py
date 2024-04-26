@@ -8,6 +8,17 @@ import pandas as pd
 from processing_html import get_mail_from_url
 
 
+@st.cache_resource
+def auth_gspread():
+    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
+             "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+    google_service_account_info = st.secrets['google_service_account']
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        google_service_account_info, scope)
+    client = gspread.authorize(creds)
+    return client
+
+
 def choose_locations_to_search():
     _, countries_data = get_countries_data()
     countries = list(countries_data.values())
@@ -44,17 +55,6 @@ def create_queries(user_query, locations):
                 queries.append((user_query, country_code,
                                 countries_data[country_code], city))
     return queries
-
-
-@st.cache_resource
-def auth_gspread():
-    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
-             "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-    google_service_account_info = st.secrets['google_service_account']
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        google_service_account_info, scope)
-    client = gspread.authorize(creds)
-    return client
 
 
 def google_search_simple_query(countryCode, query):
@@ -137,5 +137,5 @@ def is_blacklisted(item):
 
 def get_history_of_used_keywords():
     data = get_spreadsheet_data()
-    keywords = set([item['Mot clés'] for item in data])
+    keywords = set([item['Mots clés'] for item in data])
     return keywords
