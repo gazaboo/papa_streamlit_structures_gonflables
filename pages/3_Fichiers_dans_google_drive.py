@@ -6,17 +6,22 @@ from google_drive_api import (
     delete_file,
     get_files_infos_in_drive
 )
+from meta_data_handler import get_metadata
 
 
-def main_panel_results(items):
+def main_panel_results():
+    st.title('Bases de données existantes')
 
-    for item in items:
+    with st.sidebar:
+        button_to_create_spread_sheet()
+
+    all_metadata, _ = get_metadata()
+    for item in all_metadata.values():
         col1, col2 = st.columns([7, 4])
         with col1:
-            st.write('Nom de la base de données : ', item['name'])
-            last_modified = datetime.strptime(
-                item['modifiedTime'], "%Y-%m-%dT%H:%M:%S.%fZ")
-            last_modified = last_modified.replace(microsecond=0, tzinfo=None)
+            st.subheader(f":orange[{item['file_name']}]")
+            last_modified = item['last_fetched'].replace(
+                microsecond=0, tzinfo=None)
 
             st.write("Dernière mise à jour : ", last_modified)
             st.link_button(
@@ -25,7 +30,7 @@ def main_panel_results(items):
         with col2:
             sub_col1, sub_col2 = st.columns([2, 3])
             with sub_col1:
-                if st.button('Ouvrir', key=f"open_{item['id']}"):
+                if st.button("Visualiser", key=f"open_{item['id']}"):
                     open_file(item['id'])
             with sub_col2:
                 asked_for_delete = st.toggle(
@@ -40,7 +45,4 @@ def main_panel_results(items):
         st.divider()
 
 
-button_to_create_spread_sheet()
-results = get_files_infos_in_drive()
-items = results.get('files', [])
-main_panel_results(items)
+main_panel_results()

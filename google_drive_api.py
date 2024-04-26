@@ -7,57 +7,55 @@ from googleapiclient.errors import HttpError
 
 
 def button_to_create_spread_sheet():
-    col1, col2, _ = st.columns([3, 3, 2])
-    with col1:
-        spread_sheet_name = st.text_input(
-            label='Nouvelle recherche',
-            label_visibility='collapsed',
-            placeholder='Nom de la base de données...'
-        )
-    with col2:
-        if st.button('Nouvelle recherche') and len(spread_sheet_name) > 0:
-            file_metadata = {
-                'name': spread_sheet_name,
-                'mimeType': 'application/vnd.google-apps.spreadsheet',
-                'parents': '1yyTtlqhg41kd7NN7QBAtRUcih4XHV5FD',
+    st.header(':orange[Nouvelle recherche]')
+    spread_sheet_name = st.text_input(
+        label='Nouvelle recherche',
+        label_visibility='collapsed',
+        placeholder='Nom de la base de données...'
+    )
+    if st.button('Créer') and len(spread_sheet_name) > 0:
+        file_metadata = {
+            'name': spread_sheet_name,
+            'mimeType': 'application/vnd.google-apps.spreadsheet',
+            'parents': '1yyTtlqhg41kd7NN7QBAtRUcih4XHV5FD',
+        }
+        shared_permissions = {
+            'role': 'writer',
+            'type': 'user',
+            'emailAddress': 'florian.dadouchi@gmail.com'
+        }
+        try:
+            drive_client = get_drive_service()
+            gspread_client = auth_gspread()
+
+            file_id = drive_client.files().create(
+                body=file_metadata, fields='id').execute().get('id')
+
+            permission = drive_client.permissions().create(
+                fileId=file_id,
+                body=shared_permissions
+            ).execute()
+
+            sheet = gspread_client.open_by_key(file_id).sheet1
+            sheet.append_row([
+                'Titre', 'Description', 'URL', 'Email', 'Pays', 'Ville', 'Mots clés'
+            ])
+
+            new_metadata = {
+                'id': file_id,
+                'file_name': spread_sheet_name,
+                'last_fetched': datetime.now(),
+                'last_modified': datetime.now(),
+                'mots_cles': {},
+                'nbre_emails': 0
             }
-            shared_permissions = {
-                'role': 'writer',
-                'type': 'user',
-                'emailAddress': 'florian.dadouchi@gmail.com'
-            }
-            try:
-                drive_client = get_drive_service()
-                gspread_client = auth_gspread()
+            st.session_state['meta_data_drive_files'][file_id] = new_metadata
+            st.session_state.current_metadata = new_metadata
+            switch_page('Construire une base de donnees')
 
-                file_id = drive_client.files().create(
-                    body=file_metadata, fields='id').execute().get('id')
-
-                permission = drive_client.permissions().create(
-                    fileId=file_id,
-                    body=shared_permissions
-                ).execute()
-
-                sheet = gspread_client.open_by_key(file_id).sheet1
-                sheet.append_row([
-                    'Titre', 'Description', 'URL', 'Email', 'Pays', 'Ville', 'Mots clés'
-                ])
-
-                new_metadata = {
-                    'id': file_id,
-                    'file_name': spread_sheet_name,
-                    'last_fetched': datetime.now(),
-                    'last_modified': datetime.now(),
-                    'mots_cles': {},
-                    'nbre_emails': 0
-                }
-                st.session_state['meta_data_drive_files'][file_id] = new_metadata
-                st.session_state.current_metadata = new_metadata
-                switch_page('Construire une base de donnees')
-
-            except HttpError as error:
-                st.error(f"An error occurred: {error}")
-                file_id = None
+        except HttpError as error:
+            st.error(f"An error occurred: {error}")
+            file_id = None
     st.divider()
 
 
