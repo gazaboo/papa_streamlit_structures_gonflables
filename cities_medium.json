@@ -1,0 +1,24 @@
+{
+  "countryFR": [
+    "Paris",
+    "Marseille",
+    "Lyon",
+    "Toulouse",
+    "Nice",
+    "Nantes",
+    "Montpellier"
+  ],
+  "countryBE": [
+    "Bruxelles",
+    "Anvers",
+    "Gand",
+    "Charleroi"
+  ],
+  "countryCH": [
+    "Zurich",
+    "Geneve"
+  ],
+  "countryLU": [
+    "Luxembourg"
+  ]
+}

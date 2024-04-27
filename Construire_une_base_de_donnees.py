@@ -78,7 +78,6 @@ def display_main_panel():
             with st.expander("Resultats"):
                 results = google_search_simple_query(
                     countryCode=countryCode, query=query + " " + city).get("items", [])
-                st.write(results)
                 for item in results:
                     progress_bar.progress(
                         index/total_elements, text=f'Recherche : {index} / {total_elements} ({city} - {countryName})')

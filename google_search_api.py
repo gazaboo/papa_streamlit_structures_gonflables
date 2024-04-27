@@ -29,7 +29,7 @@ def choose_locations_to_search():
 
 @st.cache_data
 def get_countries_data():
-    with open('./cities_small.json') as f:
+    with open('./cities_medium.json') as f:
         cities_data = json.load(f)
 
     with open('./countries.json') as f:
@@ -59,7 +59,6 @@ def google_search_simple_query(countryCode, query):
         'q': query,
     }
     response = requests.get(url, params=params)
-    st.write(response.content)
     return response.json()
 
 
