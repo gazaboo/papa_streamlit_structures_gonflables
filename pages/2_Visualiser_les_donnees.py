@@ -63,18 +63,31 @@ def synchronize_with_remote():
 
 def main():
     data, black_list, meta_data = get_data()
+    df = pd.DataFrame(data)
+
     st.title("Base de données")
     st.subheader(f"Nom : :orange{[meta_data['file_name']]}")
+
+    emails = (
+        df['Email']
+        .dropna()
+        .drop_duplicates()
+        .str.lower()
+        .sort_values()
+        .reset_index(drop=True)
+        .iloc[1:]
+    )
+
+    st.download_button(
+        label='Télécharger emails',
+        data=emails.to_csv(index=False, header=False),
+    )
     with st.sidebar:
         st.image('./logo.png', width=200)
-        st.write("Dernière modification : ", meta_data['last_modified'])
-        st.write("Dernière synchronisation : ", meta_data['last_fetched'])
-        if st.button('Rafraîchir'):
-            synchronize_with_remote()
+        st.header(":orange[Dernière modification :]")
+        st.text(meta_data['last_fetched'])
 
-    df = pd.DataFrame(data)
     st.dataframe(df)
-
     with st.expander("URLs blacklistées"):
         df_blacklist = pd.DataFrame(black_list)
         st.dataframe(df_blacklist)
