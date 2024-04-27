@@ -103,7 +103,6 @@ def get_black_list():
     client = auth_gspread()
     id = st.session_state.current_metadata['id']
     sheet = client.open_by_key(id)
-    st.write(st.session_state.current_metadata)
     if len(sheet.worksheets()) > 1:
         return sheet.get_worksheet(1).get_all_values()
     return "Aucune"
