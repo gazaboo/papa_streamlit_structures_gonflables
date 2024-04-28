@@ -24,6 +24,13 @@ def button_to_create_spread_sheet():
             'type': 'user',
             'emailAddress': 'florian.dadouchi@gmail.com'
         }
+
+        shared_permissions_papa = {
+            'role': 'writer',
+            'type': 'user',
+            'emailAddress': 'najib.dadouchi@gmail.com'
+        }
+
         try:
             drive_client = get_drive_service()
             gspread_client = auth_gspread()
@@ -34,6 +41,11 @@ def button_to_create_spread_sheet():
             permission = drive_client.permissions().create(
                 fileId=file_id,
                 body=shared_permissions
+            ).execute()
+
+            permission = drive_client.permissions().create(
+                fileId=file_id,
+                body=shared_permissions_papa
             ).execute()
 
             sheet = gspread_client.open_by_key(file_id).sheet1
