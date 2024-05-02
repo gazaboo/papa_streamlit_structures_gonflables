@@ -58,7 +58,7 @@ def button_to_create_spread_sheet():
                 'file_name': spread_sheet_name,
                 'last_fetched': datetime.now(),
                 'last_modified': datetime.now(),
-                'mots_cles': {},
+                'mots_cles': set(),
                 'nbre_emails': 0
             }
             st.session_state['meta_data_drive_files'][file_id] = new_metadata
@@ -76,7 +76,7 @@ def get_drive_service():
     return service
 
 
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=5)
 def get_files_infos_in_drive():
     service = get_drive_service()
     results = service.files().list(pageSize=1000,

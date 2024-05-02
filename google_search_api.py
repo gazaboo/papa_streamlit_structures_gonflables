@@ -29,7 +29,7 @@ def choose_locations_to_search():
 
 @st.cache_data
 def get_countries_data():
-    with open('./cities_medium.json') as f:
+    with open('./cities.json') as f:
         cities_data = json.load(f)
 
     with open('./countries.json') as f:
@@ -91,14 +91,29 @@ def add_to_spreadsheet(item, countryName, city, query):
             print(e)
 
 
-@st.cache_resource(ttl=30)
+# def update_meta_data(sheet_name, user_query):
+#     all, current = get_metadata()
+#     st.write('current id')
+#     st.write(current['id'])
+#     st.write('select')
+#     st.write(all[current['id']]['mots_cles'])
+
+def clean_spreadsheet():
+    sheet = get_spreadsheet_object()
+    data = sheet.get_all_records()
+    sheet.update([df.columns.values.tolist()] +
+                 df.values.tolist())
+    df = pd.DataFrame(data)
+
+
+@st.cache_resource(ttl=10)
 def get_spreadsheet_data():
     client = auth_gspread()
     id = st.session_state.current_metadata['id']
     return client.open_by_key(id).get_worksheet(0).get_all_records()
 
 
-@st.cache_resource(ttl=30)
+@st.cache_resource(ttl=10)
 def get_black_list():
     client = auth_gspread()
     id = st.session_state.current_metadata['id']
@@ -108,14 +123,14 @@ def get_black_list():
     return "Aucune"
 
 
-@st.cache_resource(ttl=30)
+@st.cache_resource(ttl=10)
 def get_spreadsheet_object():
     client = auth_gspread()
     id = st.session_state.current_metadata['id']
     return client.open_by_key(id).get_worksheet(0)
 
 
-@st.cache_resource(ttl=30)
+@st.cache_resource(ttl=10)
 def get_listed_urls():
     data = get_spreadsheet_data()
     already_listed = set([urlparse(item['URL']).netloc for item in data])
@@ -135,6 +150,7 @@ def is_blacklisted(item):
 
 
 def get_history_of_used_keywords():
+    get_spreadsheet_data.clear()
     data = get_spreadsheet_data()
     keywords = set([item['Mots clés'] for item in data])
     return keywords

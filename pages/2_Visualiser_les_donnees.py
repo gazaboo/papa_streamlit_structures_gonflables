@@ -1,11 +1,14 @@
 import streamlit as st
 import gspread
+from authenticators import auth_gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from datetime import datetime
 
 from google_drive_api import get_files_infos_in_drive
 from meta_data_handler import get_metadata
+from sidebar_components import display_sidebar
+
 
 st.set_page_config(layout="wide")
 
@@ -19,14 +22,14 @@ if 'current_metadata' not in st.session_state:
     st.session_state.current_metadata['id'] = '1yozpUI5mdkpBSCiZoBnENzrVJEfHpisDg0a7ohqQEe4'
 
 
-def auth_gspread():
-    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
-             "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-    google_service_account_info = st.secrets['google_service_account']
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        google_service_account_info, scope)
-    client = gspread.authorize(creds)
-    return client
+# def auth_gspread():
+#     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
+#              "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+#     google_service_account_info = st.secrets['google_service_account']
+#     creds = ServiceAccountCredentials.from_json_keyfile_dict(
+#         google_service_account_info, scope)
+#     client = gspread.authorize(creds)
+#     return client
 
 
 def get_data():
@@ -82,10 +85,11 @@ def main():
         label='Télécharger emails',
         data=emails.to_csv(index=False, header=False),
     )
-    with st.sidebar:
-        st.image('./logo.png', width=200)
-        st.header(":orange[Dernière modification :]")
-        st.text(meta_data['last_fetched'])
+    display_sidebar()
+    # with st.sidebar:
+    #     st.image('./logo.png', width=200)
+    #     st.header(":orange[Dernière modification :]")
+    #     st.text(meta_data['last_fetched'])
 
     st.dataframe(df)
     with st.expander("URLs blacklistées"):

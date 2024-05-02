@@ -36,7 +36,7 @@ def get_files_infos_in_drive():
                 'id': result['id'],
                 'file_name': result['name'],
                 'last_modified': result['modifiedTime'],
-                'last_fetched': datetime.now()
+                'last_fetched': datetime.now(),
             }
         else:
             elt = st.session_state['meta_data_drive_files'][result['id']]

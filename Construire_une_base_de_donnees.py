@@ -1,5 +1,6 @@
 import streamlit as st
 from meta_data_handler import change_current_metadata, get_metadata
+from sidebar_components import display_sidebar
 
 from google_search_api import (
     choose_locations_to_search,
@@ -9,7 +10,7 @@ from google_search_api import (
     create_queries,
     google_search_simple_query,
     add_to_spreadsheet,
-    get_history_of_used_keywords
+    get_history_of_used_keywords,
 )
 
 
@@ -25,34 +26,6 @@ def display_site_info(item):
     st.write(item.get('snippet'))
     st.write(item.get('link'))
     st.divider()
-
-
-def display_sidebar():
-    all_meta_data, current_metadata = get_metadata()
-    with st.sidebar:
-        st.header(':orange[INFORMATIONS]')
-        display_selection_bdd(all_meta_data)
-        st.subheader(':orange[Dernière mise à jour]')
-        st.write(current_metadata['last_fetched'])
-        st.subheader(':orange[Recherches passées]')
-        for keyword in get_history_of_used_keywords():
-            st.text(keyword)
-        if 'nbre_emails' in current_metadata.keys():
-            st.subheader(':orange[Nbre total emails recensés]')
-            st.text(current_metadata['nbre_emails'])
-
-
-def display_selection_bdd(all_meta_data):
-    selected = st.selectbox(
-        label='Choisir une autre base de données',
-        index=None,
-        options=all_meta_data.keys(),
-        format_func=lambda id: all_meta_data[id]['file_name']
-    )
-    if selected is not None and selected != st.session_state.current_metadata['id']:
-        change_current_metadata(selected)
-        st.cache_data.clear()
-        st.rerun()
 
 
 def display_main_panel():
