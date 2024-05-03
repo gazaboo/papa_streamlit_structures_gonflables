@@ -65,6 +65,11 @@ def synchronize_with_remote():
 
 
 def main():
+    """
+    A function that generates a webpage displaying a database with a title and subheader.
+    It creates a download button for subsets of 300 emails, each labeled with the range of emails it contains.
+    When clicked, the button downloads the subset as a CSV file without the index and header.
+    """
     data, black_list, meta_data = get_data()
     df = pd.DataFrame(data)
 
@@ -81,20 +86,28 @@ def main():
         .iloc[1:]
     )
 
-    st.download_button(
-        label='Télécharger emails',
-        data=emails.to_csv(index=False, header=False),
-    )
+    create_download_buttons(emails)
     display_sidebar()
-    # with st.sidebar:
-    #     st.image('./logo.png', width=200)
-    #     st.header(":orange[Dernière modification :]")
-    #     st.text(meta_data['last_fetched'])
-
     st.dataframe(df)
     with st.expander("URLs blacklistées"):
         df_blacklist = pd.DataFrame(black_list)
         st.dataframe(df_blacklist)
+
+
+def create_download_buttons(emails):
+    """
+    A function that creates a download button for each subset of 300 emails.
+    The button is labeled with the range of emails it contains.
+    When clicked, the button downloads the subset of emails as a CSV file
+    without the index and header.
+    """
+    for i in range(0, len(emails), 300):
+        end = min(i + 300, len(emails))
+        sub_emails = emails[i:end]
+        st.download_button(
+            label=f'Télécharger les emails numéros {i} à {end} ',
+            data=sub_emails.to_csv(index=False, header=False),
+        )
 
 
 main()
