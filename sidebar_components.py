@@ -1,3 +1,4 @@
+from google_drive_api import button_to_create_spread_sheet
 from google_search_api import get_history_of_used_keywords
 from meta_data_handler import change_current_metadata, get_metadata
 import streamlit as st
@@ -8,6 +9,7 @@ def display_sidebar():
     with st.sidebar:
         st.header(':orange[INFORMATIONS]')
         display_selection_bdd(all_meta_data)
+        button_to_create_spread_sheet()
         st.subheader(':orange[Dernière mise à jour]')
         st.write(current_metadata['last_fetched'])
         st.subheader(':orange[Recherches passées]')

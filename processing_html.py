@@ -9,8 +9,8 @@ def extract_emails_from_html(html_content):
     emails = re.findall(email_pattern, html_content)
     wrong_emails = [
         'prestashop',
-        '.png', '.jpg',
-        'votre@email.com',
+        '.png', '.jpg', '.gif', '.jpeg',
+        'votre@email.com', 'exemple', 'example'
         'jean.dupont@gmail.com'
     ]
     filtered_emails = [email for email in emails if not any(
