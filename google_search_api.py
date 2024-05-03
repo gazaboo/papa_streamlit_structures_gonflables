@@ -12,9 +12,9 @@ from authenticators import auth_gspread
 
 
 def choose_locations_to_search():
-    _, countries_data = get_countries_data()
+    cities_data, countries_data = get_countries_data()
     countries = list(countries_data.values())
-    francophones = ['France', 'Belgique', 'Luxembourg', 'Monaco']
+    francophones = ['France', 'Belgique', 'Luxembourg', 'Monaco', 'Suisse']
     checkboxes = []
     with st.expander('Pays et Villes'):
         for country in countries:

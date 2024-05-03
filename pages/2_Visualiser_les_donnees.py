@@ -22,16 +22,6 @@ if 'current_metadata' not in st.session_state:
     st.session_state.current_metadata['id'] = '1yozpUI5mdkpBSCiZoBnENzrVJEfHpisDg0a7ohqQEe4'
 
 
-# def auth_gspread():
-#     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
-#              "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-#     google_service_account_info = st.secrets['google_service_account']
-#     creds = ServiceAccountCredentials.from_json_keyfile_dict(
-#         google_service_account_info, scope)
-#     client = gspread.authorize(creds)
-#     return client
-
-
 def get_data():
     client = auth_gspread()
     _, current_metadata = get_metadata()

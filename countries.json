@@ -1,7 +1,20 @@
 {
-    "countryBE" : "Belgique" ,
-    "countryFR" : "France",
-    "countryLU" : "Luxembourg",
-    "countryMC" : "Monaco",
-    "countryCH" : "Suisse"
+  "countryBE": "Belgique",
+  "countryFR": "France",
+  "countryLU": "Luxembourg",
+  "countryMC": "Monaco",
+  "countryCH": "Suisse",
+  "countryIT": "Italy",
+  "countryES": "Espagne",
+  "countryDE": "Allemagne",
+  "countryUK": "Royaume-Uni",
+  "countryPT": "Portugal",
+  "countryNL": "Pays-Bas",
+  "countrySE": "Suède",
+  "countryAT": "Autriche",
+  "countryDK": "Danemark",
+  "countryFI": "Finlande",
+  "countryIE": "Irlande",
+  "countryNO": "Norvege",
+  "countryGR": "Grèce"
 }
