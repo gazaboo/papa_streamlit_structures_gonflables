@@ -91,12 +91,6 @@ def add_to_spreadsheet(item, countryName, city, query):
             print(e)
 
 
-# def update_meta_data(sheet_name, user_query):
-#     all, current = get_metadata()
-#     st.write('current id')
-#     st.write(current['id'])
-#     st.write('select')
-#     st.write(all[current['id']]['mots_cles'])
 
 def clean_spreadsheet():
     sheet = get_spreadsheet_object()
@@ -123,11 +117,35 @@ def get_black_list():
     return "Aucune"
 
 
+def add_to_black_list(url):
+    client = auth_gspread()
+    id = st.session_state.current_metadata['id']
+    sheet = client.open_by_key(id)
+    if len(sheet.worksheets()) > 1:
+        blacklist = get_blacklist_object()
+    else:
+        blacklist = sheet.add_worksheet(title="blacklist", rows=100, cols=1)
+    blacklist.append_row([url])
+
+
+
+def remove_from_black_list(url):
+    blacklist = get_blacklist_object()
+    cell = blacklist.find(url)
+    blacklist.delete_rows(cell.row)
+
+
 @st.cache_resource(ttl=10)
 def get_spreadsheet_object():
     client = auth_gspread()
     id = st.session_state.current_metadata['id']
     return client.open_by_key(id).get_worksheet(0)
+
+
+def get_blacklist_object():
+    client = auth_gspread()
+    id = st.session_state.current_metadata['id']
+    return client.open_by_key(id).get_worksheet(1)
 
 
 @st.cache_resource(ttl=10)

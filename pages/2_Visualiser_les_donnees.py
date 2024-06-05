@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import datetime
 
 from google_drive_api import get_files_infos_in_drive
+from google_search_api import add_to_black_list, remove_from_black_list
 from meta_data_handler import get_metadata
 from sidebar_components import display_sidebar
 
@@ -80,8 +81,19 @@ def main():
     display_sidebar()
     st.dataframe(df)
     with st.expander("URLs blacklistées"):
-        df_blacklist = pd.DataFrame(black_list)
-        st.dataframe(df_blacklist)
+        col1, col2 = st.columns(2)
+        with col1:
+            df_blacklist = pd.DataFrame(black_list)
+            st.dataframe(df_blacklist)
+        with col2:
+            url = st.text_input(label="url")
+            subcol1, subcol2 = st.columns(2)
+            with subcol1:
+                if st.button(label="blacklister"):
+                    add_to_black_list(url)
+            with subcol2:
+                if st.button(label="autoriser"):
+                    remove_from_black_list(url)    
 
 
 def create_download_buttons(emails):
